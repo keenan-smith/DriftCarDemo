@@ -19,6 +19,7 @@ public class CarController : MonoBehaviour
     public Vector3 acceleration;
     public Vector3 velocity;
     public Vector3 lastPosition;
+    public Vector3 relativeVelocity;
     // Start is called before the first frame update
 
     public static float RandomGaussian(float minValue = -1.0f, float maxValue = 1.0f)
@@ -75,8 +76,9 @@ public class CarController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        acceleration = (rb.linearVelocity - lastVelocity) / Time.fixedDeltaTime;
-        lastVelocity = rb.linearVelocity;
+        relativeVelocity = Quaternion.Inverse(transform.rotation) * rb.linearVelocity;
+        acceleration = (relativeVelocity - lastVelocity) / Time.fixedDeltaTime;
+        lastVelocity = relativeVelocity;
         accelFile.Write($", ({acceleration.x}, {acceleration.z})");
         outfile2.Write($", ({t.position.x}, {t.position.z})");
         if (updateCount % 10 == 0)
@@ -94,7 +96,7 @@ public class CarController : MonoBehaviour
     {
         GUI.Label(new Rect(10, 10, 200, 200), t.position.ToString());
         GUI.Label(new Rect(10, 30, 200, 200), acceleration.ToString());
-        GUI.Label(new Rect(10, 50, 200, 200), velocity.ToString());
+        GUI.Label(new Rect(10, 50, 200, 200), relativeVelocity.ToString());
     }
 
     // Update is called once per frame
